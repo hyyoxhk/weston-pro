@@ -5,7 +5,7 @@
 
 #include <weston-pro.h>
 
-void keyboard_init(struct tinywl_server *server)
+void keyboard_init(struct wet_server *server)
 {
 
 }

@@ -16,7 +16,7 @@ static void output_frame(struct wl_listener *listener, void *data)
 {
 	/* This function is called every time an output is ready to display a frame,
 	 * generally at the output's refresh rate (e.g. 60Hz). */
-	struct tinywl_output *output = wl_container_of(listener, output, frame);
+	struct wet_output *output = wl_container_of(listener, output, frame);
 	struct wlr_scene *scene = output->server->scene;
 
 	struct wlr_scene_output *scene_output = wlr_scene_get_scene_output(
@@ -34,7 +34,7 @@ static void server_new_output(struct wl_listener *listener, void *data)
 {
 	/* This event is raised by the backend when a new output (aka a display or
 	 * monitor) becomes available. */
-	struct tinywl_server *server =
+	struct wet_server *server =
 		wl_container_of(listener, server, new_output);
 	struct wlr_output *wlr_output = data;
 
@@ -57,8 +57,8 @@ static void server_new_output(struct wl_listener *listener, void *data)
 	}
 
 	/* Allocates and configures our state for this output */
-	struct tinywl_output *output =
-		calloc(1, sizeof(struct tinywl_output));
+	struct wet_output *output =
+		calloc(1, sizeof(struct wet_output));
 	output->wlr_output = wlr_output;
 	output->server = server;
 	/* Sets up a listener for the frame notify event. */
@@ -78,7 +78,7 @@ static void server_new_output(struct wl_listener *listener, void *data)
 	wlr_output_layout_add_auto(server->output_layout, wlr_output);
 }
 
-bool output_init(struct tinywl_server *server)
+bool output_init(struct wet_server *server)
 {
 	server->new_output.notify = server_new_output;
 	wl_signal_add(&server->backend->events.new_output, &server->new_output);

@@ -9,12 +9,12 @@
 
 #include <weston-pro.h>
 
-void focus_view(struct tinywl_view *view, struct wlr_surface *surface) {
+void focus_view(struct wet_view *view, struct wlr_surface *surface) {
 	/* Note: this function only deals with keyboard focus. */
 	if (view == NULL) {
 		return;
 	}
-	struct tinywl_server *server = view->server;
+	struct wet_server *server = view->server;
 	struct wlr_seat *seat = server->seat;
 	struct wlr_surface *prev_surface = seat->keyboard_state.focused_surface;
 	if (prev_surface == surface) {

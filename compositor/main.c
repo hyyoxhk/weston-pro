@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	struct tinywl_server server = { 0 };
+	struct wet_server server = { 0 };
 
 	server.wl_display = wl_display_create();
 

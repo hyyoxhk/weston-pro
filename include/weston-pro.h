@@ -16,13 +16,13 @@ struct wlr_scene;
 
 
 /* For brevity's sake, struct members are annotated where they are used. */
-enum tinywl_cursor_mode {
-	TINYWL_CURSOR_PASSTHROUGH,
-	TINYWL_CURSOR_MOVE,
-	TINYWL_CURSOR_RESIZE,
+enum wet_cursor_mode {
+	CURSOR_PASSTHROUGH,
+	CURSOR_MOVE,
+	CURSOR_RESIZE,
 };
 
-struct tinywl_server {
+struct wet_server {
 	struct wl_display *wl_display;
 	struct wlr_backend *backend;
 	struct wlr_renderer *renderer;
@@ -46,8 +46,8 @@ struct tinywl_server {
 	struct wl_listener request_cursor;
 	struct wl_listener request_set_selection;
 	struct wl_list keyboards;
-	enum tinywl_cursor_mode cursor_mode;
-	struct tinywl_view *grabbed_view;
+	enum wet_cursor_mode cursor_mode;
+	struct wet_view *grabbed_view;
 	double grab_x, grab_y;
 	struct wlr_box grab_geobox;
 	uint32_t resize_edges;
@@ -57,16 +57,16 @@ struct tinywl_server {
 	struct wl_listener new_output;
 };
 
-struct tinywl_output {
+struct wet_output {
 	struct wl_list link;
-	struct tinywl_server *server;
+	struct wet_server *server;
 	struct wlr_output *wlr_output;
 	struct wl_listener frame;
 };
 
-struct tinywl_view {
+struct wet_view {
 	struct wl_list link;
-	struct tinywl_server *server;
+	struct wet_server *server;
 	struct wlr_xdg_surface *xdg_surface;
 	struct wlr_scene_node *scene_node;
 	struct wl_listener map;
@@ -77,28 +77,28 @@ struct tinywl_view {
 	int x, y;
 };
 
-struct tinywl_keyboard {
+struct wet_keyboard {
 	struct wl_list link;
-	struct tinywl_server *server;
+	struct wet_server *server;
 	struct wlr_input_device *device;
 
 	struct wl_listener modifiers;
 	struct wl_listener key;
 };
 
-bool server_init(struct tinywl_server *server);
+bool server_init(struct wet_server *server);
 
-bool server_start(struct tinywl_server *server);
+bool server_start(struct wet_server *server);
 
-bool output_init(struct tinywl_server *server);
+bool output_init(struct wet_server *server);
 
-void seat_init(struct tinywl_server *server);
+void seat_init(struct wet_server *server);
 
-void cursor_init(struct tinywl_server *server);
+void cursor_init(struct wet_server *server);
 
-void keyboard_init(struct tinywl_server *server);
+void keyboard_init(struct wet_server *server);
 
-void focus_view(struct tinywl_view *view, struct wlr_surface *surface);
+void focus_view(struct wet_view *view, struct wlr_surface *surface);
 
 void server_new_xdg_surface(struct wl_listener *listener, void *data);
 

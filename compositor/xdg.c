@@ -13,12 +13,12 @@
 
 #include <weston-pro.h>
 
-static void begin_interactive(struct tinywl_view *view,
-		enum tinywl_cursor_mode mode, uint32_t edges) {
+static void wet_(struct wet_view *view,
+		enum wet_cursor_mode mode, uint32_t edges) {
 	/* This function sets up an interactive move or resize operation, where the
 	 * compositor stops propegating pointer events to clients and instead
 	 * consumes them itself, to move or resize windows. */
-	struct tinywl_server *server = view->server;
+	struct wet_server *server = view->server;
 	struct wlr_surface *focused_surface =
 		server->seat->pointer_state.focused_surface;
 	if (view->xdg_surface->surface !=
@@ -29,7 +29,7 @@ static void begin_interactive(struct tinywl_view *view,
 	server->grabbed_view = view;
 	server->cursor_mode = mode;
 
-	if (mode == TINYWL_CURSOR_MOVE) {
+	if (mode == CURSOR_MOVE) {
 		server->grab_x = server->cursor->x - view->x;
 		server->grab_y = server->cursor->y - view->y;
 	} else {
@@ -58,8 +58,8 @@ static void xdg_toplevel_request_move(
 	 * decorations. Note that a more sophisticated compositor should check the
 	 * provided serial against a list of button press serials sent to this
 	 * client, to prevent the client from requesting this whenever they want. */
-	struct tinywl_view *view = wl_container_of(listener, view, request_move);
-	begin_interactive(view, TINYWL_CURSOR_MOVE, 0);
+	struct wet_view *view = wl_container_of(listener, view, request_move);
+	wet_(view, CURSOR_MOVE, 0);
 }
 
 static void xdg_toplevel_request_resize(
@@ -70,13 +70,13 @@ static void xdg_toplevel_request_resize(
 	 * provided serial against a list of button press serials sent to this
 	 * client, to prevent the client from requesting this whenever they want. */
 	struct wlr_xdg_toplevel_resize_event *event = data;
-	struct tinywl_view *view = wl_container_of(listener, view, request_resize);
-	begin_interactive(view, TINYWL_CURSOR_RESIZE, event->edges);
+	struct wet_view *view = wl_container_of(listener, view, request_resize);
+	wet_(view, CURSOR_RESIZE, event->edges);
 }
 
 static void xdg_toplevel_map(struct wl_listener *listener, void *data) {
 	/* Called when the surface is mapped, or ready to display on-screen. */
-	struct tinywl_view *view = wl_container_of(listener, view, map);
+	struct wet_view *view = wl_container_of(listener, view, map);
 
 	wl_list_insert(&view->server->views, &view->link);
 
@@ -85,14 +85,14 @@ static void xdg_toplevel_map(struct wl_listener *listener, void *data) {
 
 static void xdg_toplevel_unmap(struct wl_listener *listener, void *data) {
 	/* Called when the surface is unmapped, and should no longer be shown. */
-	struct tinywl_view *view = wl_container_of(listener, view, unmap);
+	struct wet_view *view = wl_container_of(listener, view, unmap);
 
 	wl_list_remove(&view->link);
 }
 
 static void xdg_toplevel_destroy(struct wl_listener *listener, void *data) {
 	/* Called when the surface is destroyed and should never be shown again. */
-	struct tinywl_view *view = wl_container_of(listener, view, destroy);
+	struct wet_view *view = wl_container_of(listener, view, destroy);
 
 	wl_list_remove(&view->map.link);
 	wl_list_remove(&view->unmap.link);
@@ -106,7 +106,7 @@ static void xdg_toplevel_destroy(struct wl_listener *listener, void *data) {
 void server_new_xdg_surface(struct wl_listener *listener, void *data) {
 	/* This event is raised when wlr_xdg_shell receives a new xdg surface from a
 	 * client, either a toplevel (application window) or popup. */
-	struct tinywl_server *server =
+	struct wet_server *server =
 		wl_container_of(listener, server, new_xdg_surface);
 	struct wlr_xdg_surface *xdg_surface = data;
 
@@ -125,9 +125,9 @@ void server_new_xdg_surface(struct wl_listener *listener, void *data) {
 	}
 	assert(xdg_surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL);
 
-	/* Allocate a tinywl_view for this surface */
-	struct tinywl_view *view =
-		calloc(1, sizeof(struct tinywl_view));
+	/* Allocate a wet_view for this surface */
+	struct wet_view *view =
+		calloc(1, sizeof(struct wet_view));
 	view->server = server;
 	view->xdg_surface = xdg_surface;
 	view->scene_node = wlr_scene_xdg_surface_create(

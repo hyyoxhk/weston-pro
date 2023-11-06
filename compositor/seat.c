@@ -15,7 +15,7 @@
 #include <weston-pro.h>
 
 static void seat_request_cursor(struct wl_listener *listener, void *data) {
-	struct tinywl_server *server = wl_container_of(
+	struct wet_server *server = wl_container_of(
 			listener, server, request_cursor);
 	/* This event is raised by the seat when a client provides a cursor image */
 	struct wlr_seat_pointer_request_set_cursor_event *event = data;
@@ -36,9 +36,9 @@ static void seat_request_cursor(struct wl_listener *listener, void *data) {
 static void seat_request_set_selection(struct wl_listener *listener, void *data) {
 	/* This event is raised by the seat when a client wants to set the selection,
 	 * usually when the user copies something. wlroots allows compositors to
-	 * ignore such requests if they so choose, but in tinywl we always honor
+	 * ignore such requests if they so choose, but in weston-pro we always honor
 	 */
-	struct tinywl_server *server = wl_container_of(
+	struct wet_server *server = wl_container_of(
 			listener, server, request_set_selection);
 	struct wlr_seat_request_set_selection_event *event = data;
 	wlr_seat_set_selection(server->seat, event->source, event->serial);
@@ -48,7 +48,7 @@ static void keyboard_handle_modifiers(
 		struct wl_listener *listener, void *data) {
 	/* This event is raised when a modifier key, such as shift or alt, is
 	 * pressed. We simply communicate this to the client. */
-	struct tinywl_keyboard *keyboard =
+	struct wet_keyboard *keyboard =
 		wl_container_of(listener, keyboard, modifiers);
 	/*
 	 * A seat can only have one keyboard, but this is a limitation of the
@@ -62,7 +62,7 @@ static void keyboard_handle_modifiers(
 		&keyboard->device->keyboard->modifiers);
 }
 
-static bool handle_keybinding(struct tinywl_server *server, xkb_keysym_t sym) {
+static bool handle_keybinding(struct wet_server *server, xkb_keysym_t sym) {
 	/*
 	 * Here we handle compositor keybindings. This is when the compositor is
 	 * processing keys, rather than passing them on to the client for its own
@@ -79,7 +79,7 @@ static bool handle_keybinding(struct tinywl_server *server, xkb_keysym_t sym) {
 		if (wl_list_length(&server->views) < 2) {
 			break;
 		}
-		struct tinywl_view *next_view = wl_container_of(
+		struct wet_view *next_view = wl_container_of(
 			server->views.prev, next_view, link);
 		focus_view(next_view, next_view->xdg_surface->surface);
 		break;
@@ -92,9 +92,9 @@ static bool handle_keybinding(struct tinywl_server *server, xkb_keysym_t sym) {
 static void keyboard_handle_key(
 		struct wl_listener *listener, void *data) {
 	/* This event is raised when a key is pressed or released. */
-	struct tinywl_keyboard *keyboard =
+	struct wet_keyboard *keyboard =
 		wl_container_of(listener, keyboard, key);
-	struct tinywl_server *server = keyboard->server;
+	struct wet_server *server = keyboard->server;
 	struct wlr_event_keyboard_key *event = data;
 	struct wlr_seat *seat = server->seat;
 
@@ -124,10 +124,10 @@ static void keyboard_handle_key(
 	}
 }
 
-static void server_new_keyboard(struct tinywl_server *server,
+static void server_new_keyboard(struct wet_server *server,
 		struct wlr_input_device *device) {
-	struct tinywl_keyboard *keyboard =
-		calloc(1, sizeof(struct tinywl_keyboard));
+	struct wet_keyboard *keyboard =
+		calloc(1, sizeof(struct wet_keyboard));
 	keyboard->server = server;
 	keyboard->device = device;
 
@@ -154,7 +154,7 @@ static void server_new_keyboard(struct tinywl_server *server,
 	wl_list_insert(&server->keyboards, &keyboard->link);
 }
 
-static void server_new_pointer(struct tinywl_server *server,
+static void server_new_pointer(struct wet_server *server,
 		struct wlr_input_device *device) {
 	/* We don't do anything special with pointers. All of our pointer handling
 	 * is proxied through wlr_cursor. On another compositor, you might take this
@@ -166,7 +166,7 @@ static void server_new_pointer(struct tinywl_server *server,
 static void server_new_input(struct wl_listener *listener, void *data) {
 	/* This event is raised by the backend when a new input device becomes
 	 * available. */
-	struct tinywl_server *server =
+	struct wet_server *server =
 		wl_container_of(listener, server, new_input);
 	struct wlr_input_device *device = data;
 	switch (device->type) {
@@ -189,7 +189,7 @@ static void server_new_input(struct wl_listener *listener, void *data) {
 	wlr_seat_set_capabilities(server->seat, caps);
 }
 
-void seat_init(struct tinywl_server *server)
+void seat_init(struct wet_server *server)
 {
 	server->seat = wlr_seat_create(server->wl_display, "seat0");
 

@@ -17,7 +17,7 @@
 
 #include "weston-pro.h"
 
-bool server_init(struct tinywl_server *server)
+bool server_init(struct wet_server *server)
 {
 	struct wlr_compositor *compositor;
 	struct wlr_data_device_manager *device_manager;
@@ -105,7 +105,7 @@ failed:
 	return false;
 }
 
-bool server_start(struct tinywl_server *server)
+bool server_start(struct wet_server *server)
 {
 	/* Add a Unix socket to the Wayland display. */
 	const char *socket = wl_display_add_socket_auto(server->wl_display);
