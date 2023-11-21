@@ -122,14 +122,6 @@ bool server_start(struct wet_server *server)
 		return false;
 	}
 
-	/* Start the backend. This will enumerate outputs and inputs, become the DRM
-	 * master, etc */
-	if (!wlr_backend_start(server->backend)) {
-		wlr_backend_destroy(server->backend);
-		wl_display_destroy(server->wl_display);
-		return false;
-	}
-
 	/* Set the WAYLAND_DISPLAY environment variable to our socket and run the
 	 * startup command if requested. */
 	setenv("WAYLAND_DISPLAY", socket, true);
