@@ -13,7 +13,7 @@
 
 #include <weston-pro.h>
 
-static void wet_(struct wet_view *view,
+static void begin_interactive(struct wet_view *view,
 		enum wet_cursor_mode mode, uint32_t edges) {
 	/* This function sets up an interactive move or resize operation, where the
 	 * compositor stops propegating pointer events to clients and instead
@@ -59,7 +59,7 @@ static void xdg_toplevel_request_move(
 	 * provided serial against a list of button press serials sent to this
 	 * client, to prevent the client from requesting this whenever they want. */
 	struct wet_view *view = wl_container_of(listener, view, request_move);
-	wet_(view, CURSOR_MOVE, 0);
+	begin_interactive(view, CURSOR_MOVE, 0);
 }
 
 static void xdg_toplevel_request_resize(
@@ -71,7 +71,7 @@ static void xdg_toplevel_request_resize(
 	 * client, to prevent the client from requesting this whenever they want. */
 	struct wlr_xdg_toplevel_resize_event *event = data;
 	struct wet_view *view = wl_container_of(listener, view, request_resize);
-	wet_(view, CURSOR_RESIZE, event->edges);
+	begin_interactive(view, CURSOR_RESIZE, event->edges);
 }
 
 static void xdg_toplevel_map(struct wl_listener *listener, void *data) {
