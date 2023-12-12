@@ -5,13 +5,6 @@
 
 #include <stdlib.h>
 
-#include <wlr/backend.h>
-#include <wlr/types/wlr_cursor.h>
-#include <wlr/types/wlr_seat.h>
-#include <wlr/types/wlr_data_device.h>
-#include <wlr/types/wlr_xdg_shell.h>
-
-
 #include <weston-pro.h>
 
 static void seat_request_cursor(struct wl_listener *listener, void *data) {
@@ -216,4 +209,5 @@ void seat_init(struct wet_server *server)
 	server->cursor = wlr_cursor_create();
 
 	wlr_cursor_attach_output_layout(server->cursor, server->output_layout);
+	cursor_init(server);
 }

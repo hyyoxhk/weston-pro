@@ -3,10 +3,6 @@
  * Copyright (C) 2023 He Yong <hyyoxhk@163.com>
  */
 
-#include <wlr/types/wlr_seat.h>
-#include <wlr/types/wlr_xdg_shell.h>
-#include <wlr/types/wlr_scene.h>
-
 #include <weston-pro.h>
 
 void focus_view(struct wet_view *view, struct wlr_surface *surface) {

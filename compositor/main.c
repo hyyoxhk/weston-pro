@@ -1,36 +1,37 @@
-#include "config.h"
+// SPDX-License-Identifier: MIT
+/*
+ * Copyright (C) 2023 He Yong <hyyoxhk@163.com>
+ */
 
-#include <assert.h>
-#include <getopt.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
+#include <signal.h>
 #include <unistd.h>
-#include <wayland-server-core.h>
-#include <wlr/backend.h>
-#include <wlr/render/allocator.h>
-#include <wlr/render/wlr_renderer.h>
-#include <wlr/types/wlr_cursor.h>
-#include <wlr/types/wlr_compositor.h>
-#include <wlr/types/wlr_data_device.h>
-#include <wlr/types/wlr_input_device.h>
-#include <wlr/types/wlr_keyboard.h>
-#include <wlr/types/wlr_output.h>
-#include <wlr/types/wlr_output_layout.h>
-#include <wlr/types/wlr_pointer.h>
-#include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_seat.h>
-#include <wlr/types/wlr_xcursor_manager.h>
-#include <wlr/types/wlr_xdg_shell.h>
-#include <wlr/util/log.h>
-#include <xkbcommon/xkbcommon.h>
+#include <getopt.h>
 
-#include "weston-pro.h"
+#include <weston-pro.h>
+#include "shared/helpers.h"
+
+static int
+on_term_signal(int signal_number, void *data)
+{
+	struct wl_display *display = data;
+
+	//printf("caught signal %d\n", signal_number);
+	wl_display_terminate(display);
+
+	return 1;
+}
 
 int main(int argc, char *argv[]) {
-	wlr_log_init(WLR_DEBUG, NULL);
 	char *startup_cmd = NULL;
+	int ret = EXIT_FAILURE;
+	struct wl_display *display;
+	struct wl_event_source *signals[3];
+	struct wl_event_loop *loop;
+	int i;
+	struct wet_server server = { 0 };
+	sigset_t mask;
 
 	int c;
 	while ((c = getopt(argc, argv, "s:h")) != -1) {
@@ -48,9 +49,31 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	struct wet_server server = { 0 };
 
-	server.wl_display = wl_display_create();
+	server.wl_display = display = wl_display_create();
+	if (display == NULL) {
+		printf("fatal: failed to create display\n");
+		goto out_display;
+	}
+
+	loop = wl_display_get_event_loop(display);
+	signals[0] = wl_event_loop_add_signal(loop, SIGTERM, on_term_signal,
+					      display);
+	signals[1] = wl_event_loop_add_signal(loop, SIGINT, on_term_signal,
+					      display);
+	signals[2] = wl_event_loop_add_signal(loop, SIGQUIT, on_term_signal,
+					      display);
+
+	if (!signals[0] || !signals[1] || !signals[2])
+		goto out_signals;
+
+	/* Xwayland uses SIGUSR1 for communicating with weston. Since some
+	   weston plugins may create additional threads, set up any necessary
+	   signal blocking early so that these threads can inherit the settings
+	   when created. */
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGUSR1);
+	pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
 	if (!server_init(&server))
 		return -1;
@@ -69,5 +92,12 @@ int main(int argc, char *argv[]) {
 	/* Once wl_display_run returns, we shut down the server. */
 	wl_display_destroy_clients(server.wl_display);
 	wl_display_destroy(server.wl_display);
-	return 0;
+
+out_signals:
+	for (i = ARRAY_LENGTH(signals) - 1; i >= 0; i--)
+		if (signals[i])
+			wl_event_source_remove(signals[i]);
+out_display:
+
+	return ret;
 }

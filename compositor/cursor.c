@@ -3,12 +3,6 @@
  * Copyright (C) 2023 He Yong <hyyoxhk@163.com>
  */
 
-#include <wlr/types/wlr_cursor.h>
-#include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_xdg_shell.h>
-#include <wlr/types/wlr_xcursor_manager.h>
-#include <wlr/util/edges.h>
-
 #include <weston-pro.h>
 
 static struct wet_view *desktop_view_at(
@@ -212,7 +206,6 @@ static void server_cursor_frame(struct wl_listener *listener, void *data) {
 	wlr_seat_pointer_notify_frame(server->seat);
 }
 
-
 void cursor_init(struct wet_server *server)
 {
 	/* Creates an xcursor manager, another wlroots utility which loads up
@@ -249,4 +242,3 @@ void cursor_init(struct wet_server *server)
 	server->cursor_frame.notify = server_cursor_frame;
 	wl_signal_add(&server->cursor->events.frame, &server->cursor_frame);
 }
-

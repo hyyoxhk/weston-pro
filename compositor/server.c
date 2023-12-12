@@ -6,16 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <wlr/backend.h>
-#include <wlr/render/wlr_renderer.h>
-#include <wlr/render/allocator.h>
-#include <wlr/types/wlr_compositor.h>
-#include <wlr/types/wlr_data_device.h>
-#include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_xdg_shell.h>
-#include <wlr/types/wlr_output_layout.h>
-
-#include "weston-pro.h"
+#include  <weston-pro.h>
 
 bool server_init(struct wet_server *server)
 {

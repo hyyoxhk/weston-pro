@@ -6,11 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <wlr/backend.h>
-#include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_output_layout.h>
-
-#include "weston-pro.h"
+#include <weston-pro.h>
 
 static void output_frame(struct wl_listener *listener, void *data)
 {
