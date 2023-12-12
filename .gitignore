@@ -13,3 +13,4 @@ TAGS
 build/
 builddir/
 .vscode/
+.vscode-ctags
